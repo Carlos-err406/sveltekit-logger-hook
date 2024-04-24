@@ -24,35 +24,6 @@ npm i sveltekit-logger-hook
 
 ## Usage
 
-1. **Define your log message template and colors**
-
-First, specify a template string for your log messages, using placeholders for dynamic content:
-
-- `{date}` - Current date and time
-- `{method}` - HTTP request method
-- `{status}` - HTTP response status code
-- `{url}` - Request URL path
-- `{urlSearchParams}` - URL search parameters
-
-Then, configure colors for each template part using predefined color functions. You may specify a default color or customize it for different parts of the log message.
-
-```typescript
-import { getLoggerHook, Colors } from 'sveltekit-logger-hook';
-
-const loggerOptions = {
-	template: '[{date}] {method} {url} {status}',
-	colorOptions: {
-		date: 'yellow',
-		method: 'greenBold',
-		status: (vars) => (vars.status >= 400 ? 'redBold' : 'green'),
-		url: 'default',
-		urlSearchParams: 'cyan'
-	}
-};
-```
-
-2. **Integrate with SvelteKit's handle hook**
-
 Use the `getLoggerHook` function to generate a logging hook and integrate it into your SvelteKit application's hooks configuration:
 
 ```typescript
@@ -63,20 +34,19 @@ import { sequence } from '@sveltejs/kit/hooks';
 const someHook: Handle = ({ event, resolve }) => resolve(event);
 
 const loggerHook = getLoggerHook({
-	template: '{date} {url}{urlSearchParams} {method} {status}',
+	template: '{date} {url} {method} {status}',
 	colorOptions: {
-		date: ({ status }) => 'green',
+		date: 'yellow',
+		url: 'default',
 		status: ({ status }) => (status >= 400 ? 'redBold' : 'green'),
-		method: ({ status }) => 'default',
-		url: ({ status }) => (status >= 400 ? 'red' : 'yellow'),
-		urlSearchParams: ({ status }) => (status >= 400 ? 'red' : 'yellow')
+		urlSearchParams: 'default'
 	}
 });
 
 export const handle = sequence(loggerHook, someHook);
 ```
 
-3. **Observe colorized and formatted log messages**
+**Observe colorized and formatted log messages**
 
 Start your SvelteKit application, and you should see colorized log messages in your console, formatted according to your template and color settings.
 
@@ -102,8 +72,9 @@ Generates a logging hook for SvelteKit applications.
 
 - `options` - Configuration for the log message template and colors.
 
-  - `template`: A string template for log messages. Use placeholders for dynamic content.
-  - `colorOptions`: Optional. An object specifying color functions for different parts of the log message.
+  - `template`: A string template for log messages. Use placeholders for dynamic content. Available template variables are `{date}`,`{method}`,`{status}`,`{url}`,`{urlSearchParams}`.
+  - `colorOptions`: Optional. An object specifying color functions for different parts of the log message. If no value is provided all template parts will have default color. Attributes of this configuration are the same template parts without `{}`, and accept values as direct [color function names](#colors) or a function that takes in the current values of the template parts and return a [color function name](#colors)(see the `status` [example](#usage)) 
+
 
 #### Return value:
 
