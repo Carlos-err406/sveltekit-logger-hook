@@ -45,7 +45,7 @@ type CleanLogVariables = {
 };
 
 type ColorOptions = {
-	[key in CleanTemplatePart]:
+	[key in CleanTemplatePart]?:
 		| ((values: CleanLogVariables) => ColorFunctionName)
 		| ColorFunctionName;
 };
@@ -95,7 +95,7 @@ export const getLoggerHook =
 				const colorName = color(cleanLogVariables);
 				const getColor = Colors[colorName];
 				coloredValue = getColor(String(value));
-			} else coloredValue = Colors[color](String(value));
+			} else coloredValue = Colors[color || 'default'](String(value));
 			return acc.replaceAll(key, coloredValue);
 		}, template);
 
