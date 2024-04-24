@@ -1,6 +1,10 @@
 import { getLoggerHook } from '$lib/index.js';
+import type { Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
 
-export const handle = getLoggerHook({
+const someHook: Handle = ({ event, resolve }) => resolve(event);
+
+const loggerHook = getLoggerHook({
 	template: '{date} [{url}{urlSearchParams}] [{method} {status}]',
 	colorOptions: {
 		date: ({ status }) => (status >= 400 ? 'red' : 'yellow'),
@@ -10,3 +14,5 @@ export const handle = getLoggerHook({
 		urlSearchParams: ({ status }) => (status >= 400 ? 'red' : 'yellow')
 	}
 });
+
+export const handle = sequence(loggerHook, someHook);

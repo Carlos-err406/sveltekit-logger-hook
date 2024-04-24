@@ -1,58 +1,126 @@
-# create-svelte
+# README.md
 
-Everything you need to build a Svelte library, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+## Overview
 
-Read more about creating a library [in the docs](https://kit.svelte.dev/docs/packaging).
+This package provides a customizable logging middleware for SvelteKit applications. It allows developers to colorize and format log messages for HTTP requests and responses, facilitating better readability and debugging experience in server-side logs.
 
-## Creating a project
+The key feature is the ability to define a log message template with dynamic placeholders for request and response details (such as URL, HTTP method, status code, etc.) and colorize the output using predefined colors.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+- Customizable log message templates
+- Dynamic placeholders for request/response details
+- Predefined color functions for text colorization
+- Supports bold and regular text styles
+- Easy integration with SvelteKit's hook system
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+## Installation
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+To install the package, run the following command in your SvelteKit project directory:
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npm i sveltekit-logger-hook
 ```
 
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
+## Usage
 
-## Building
+1. **Define your log message template and colors**
 
-To build your library:
+First, specify a template string for your log messages, using placeholders for dynamic content:
 
-```bash
-npm run package
+- `{date}` - Current date and time
+- `{method}` - HTTP request method
+- `{status}` - HTTP response status code
+- `{url}` - Request URL path
+- `{urlSearchParams}` - URL search parameters
+
+Then, configure colors for each template part using predefined color functions. You may specify a default color or customize it for different parts of the log message.
+
+```typescript
+import { getLoggerHook, Colors } from 'sveltekit-logger-hook';
+
+const loggerOptions = {
+	template: '[{date}] {method} {url} {status}',
+	colorOptions: {
+		date: 'yellow',
+		method: 'greenBold',
+		status: (vars) => (vars.status >= 400 ? 'redBold' : 'green'),
+		url: 'default',
+		urlSearchParams: 'cyan'
+	}
+};
 ```
 
-To create a production version of your showcase app:
+2. **Integrate with SvelteKit's handle hook**
 
-```bash
-npm run build
+Use the `getLoggerHook` function to generate a logging hook and integrate it into your SvelteKit application's hooks configuration:
+
+```typescript
+import { getLoggerHook } from 'sveltekit-logger-hook';
+import type { Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
+
+const someHook: Handle = ({ event, resolve }) => resolve(event);
+
+const loggerHook = getLoggerHook({
+	template: '{date} {url}{urlSearchParams} {method} {status}',
+	colorOptions: {
+		date: ({ status }) => 'green',
+		status: ({ status }) => (status >= 400 ? 'redBold' : 'green'),
+		method: ({ status }) => 'default',
+		url: ({ status }) => (status >= 400 ? 'red' : 'yellow'),
+		urlSearchParams: ({ status }) => (status >= 400 ? 'red' : 'yellow')
+	}
+});
+
+export const handle = sequence(loggerHook, someHook);
 ```
 
-You can preview the production build with `npm run preview`.
+3. **Observe colorized and formatted log messages**
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Start your SvelteKit application, and you should see colorized log messages in your console, formatted according to your template and color settings.
 
-## Publishing
+## API Reference
 
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
+### Colors
 
-To publish your library to [npm](https://www.npmjs.com):
+A collection of color functions to format log output. Available color functions are:
 
-```bash
-npm publish
-```
+- `default`
+- `red`
+- `green`
+- `yellow`
+- `redBold`
+- `greenBold`
+- `yellowBold`
+
+### getLoggerHook(options: LoggerHookOptions): Handle
+
+Generates a logging hook for SvelteKit applications.
+
+#### Parameters:
+
+- `options` - Configuration for the log message template and colors.
+
+  - `template`: A string template for log messages. Use placeholders for dynamic content.
+  - `colorOptions`: Optional. An object specifying color functions for different parts of the log message.
+
+#### Return value:
+
+A SvelteKit handle function that can be used in the application's hooks configuration.
+
+## License
+
+This package is licensed under the [MIT License](LICENSE).
+
+## Contributing
+
+Contributions to improve this package are welcome. Please follow the contributing guidelines to submit bugs, feature requests, or pull requests.
+
+## Support
+
+For support and questions, please open an issue in the GitHub repository.
+
+---
+
+This package is not affiliated with or endorsed by Svelte or the SvelteKit project.

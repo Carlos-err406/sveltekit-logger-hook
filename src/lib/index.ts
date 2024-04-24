@@ -90,11 +90,11 @@ export const getLoggerHook =
 			const k = key.replaceAll(new RegExp(/[{}]/, 'g'), '') as CleanTemplatePart;
 			const color = colorOptions[k];
 			let coloredValue = String(value);
+			if (value instanceof Date) coloredValue = value.toLocaleString();
 			if (typeof color === 'function') {
 				const colorName = color(cleanLogVariables);
 				const getColor = Colors[colorName];
-				if (value instanceof Date) coloredValue = getColor(value.toLocaleString());
-				else coloredValue = getColor(String(value));
+				coloredValue = getColor(String(value));
 			} else coloredValue = Colors[color](String(value));
 			return acc.replaceAll(key, coloredValue);
 		}, template);
