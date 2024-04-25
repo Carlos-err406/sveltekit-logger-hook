@@ -5,9 +5,12 @@ const colorDefault = (text: string) => `\x1b[0m${text}\x1b[0m`;
 const colorRed = (text: string) => `\x1b[31m${text}\x1b[0m`;
 const colorGreen = (text: string) => `\x1b[32m${text}\x1b[0m`;
 const colorYellow = (text: string) => `\x1b[33m${text}\x1b[0m`;
+const colorCyan = (text: string) => `\x1b[36m${text}\x1b[0m`;
+const colorCyanBold = (text: string) => `\x1b[1;36m${text}\x1b[0m`;
 const colorRedBold = (text: string) => `\x1b[1m\x1b[31m${text}\x1b[0m`;
 const colorGreenBold = (text: string) => `\x1b[1m\x1b[32m${text}\x1b[0m`;
 const colorYellowBold = (text: string) => `\x1b[1m\x1b[33m${text}\x1b[0m`;
+
 const log = (...text: string[]): void => process.stdout.write(text.join(' ') + '\n');
 
 export const Colors = {
@@ -15,6 +18,8 @@ export const Colors = {
 	red: colorRed,
 	green: colorGreen,
 	yellow: colorYellow,
+	cyan: colorCyan,
+	cyanBold: colorCyanBold,
 	redBold: colorRedBold,
 	greenBold: colorGreenBold,
 	yellowBold: colorYellowBold

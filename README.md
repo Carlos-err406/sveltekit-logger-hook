@@ -60,6 +60,8 @@ A collection of color functions to format log output. Available color functions 
 - `red`
 - `green`
 - `yellow`
+- `cyan`
+- `cyanBold`
 - `redBold`
 - `greenBold`
 - `yellowBold`
