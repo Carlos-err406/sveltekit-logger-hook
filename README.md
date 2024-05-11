@@ -75,8 +75,8 @@ Generates a logging hook for SvelteKit applications.
 - `options` - Configuration for the log message template and colors.
 
   - `template`: A string template for log messages. Use placeholders for dynamic content. Available template variables are `{date}`,`{method}`,`{status}`,`{url}`,`{urlSearchParams}`.
-  - `colorOptions`: Optional. An object specifying color functions for different parts of the log message. If no value is provided all template parts will have default color. Attributes of this configuration are the same template parts without `{}`, and accept values as direct [color function names](#colors) or a function that takes in the current values of the template parts and return a [color function name](#colors)(see the `status` [example](#usage)) 
-
+  - `decodeSearchParams`: Optional, if not provided or `false` is passed, `urlSearchParams` will be printed as is, if `true` it will be passed to `decodeURIComponent` before print
+  - `colorOptions`: Optional. An object specifying color functions for different parts of the log message. If no value is provided all template parts will have default color. Attributes of this configuration are the same template parts without `{}`, and accept values as direct [color function names](#colors) or a function that takes in the current values of the template parts and return a [color function name](#colors)(see the `status` [example](#usage))
 
 #### Return value:
 

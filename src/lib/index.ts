@@ -58,6 +58,7 @@ type ColorOptions = {
 type LoggerHookOptions = {
 	template: string;
 	colorOptions?: ColorOptions;
+	decodeSearchParams?: boolean;
 };
 
 export const getLoggerHook =
@@ -69,7 +70,8 @@ export const getLoggerHook =
 			method: 'default',
 			status: 'default',
 			urlSearchParams: 'default'
-		}
+		},
+		decodeSearchParams = false
 	}: LoggerHookOptions): Handle =>
 	async ({ event, resolve }) => {
 		const { url, request } = event;
@@ -81,7 +83,7 @@ export const getLoggerHook =
 			'{date}': new Date(),
 			'{method}': method,
 			'{status}': status,
-			'{urlSearchParams}': search,
+			'{urlSearchParams}': decodeSearchParams ? decodeURIComponent(search) : search,
 			'{url}': pathname
 		};
 		const cleanLogVariables: CleanLogVariables = {
