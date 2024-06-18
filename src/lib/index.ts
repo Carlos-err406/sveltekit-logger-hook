@@ -1,6 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
+import dayjs from 'dayjs';
 import fs from 'fs';
-
 const colorDefault = (text: string) => `\x1b[0m${text}\x1b[0m`;
 
 const colorRed = (text: string) => `\x1b[31m${text}\x1b[0m`;
@@ -58,6 +58,7 @@ type ColorOptions = {
 
 type LoggerHookOptions = {
 	template: string;
+	dateTemplate?: string;
 	fileOptions?: {
 		basePath: string;
 	};
@@ -94,10 +95,12 @@ const getCleanLogVariables = (logVariables: LogVariables): CleanLogVariables => 
 const getStrLogs = (
 	template: string,
 	{
+		dateTemplate = 'YYYY-MMMM-DD HH:mm:ss A',
 		logVariables,
 		cleanLogVariables,
 		colorOptions
 	}: {
+		dateTemplate?: string;
 		logVariables: LogVariables;
 		cleanLogVariables: CleanLogVariables;
 		colorOptions: ColorOptions;
@@ -108,7 +111,8 @@ const getStrLogs = (
 			const k = key.replaceAll(new RegExp(/[{}]/, 'g'), '') as CleanTemplatePart;
 			const color = colorOptions[k];
 			let coloredValue = '';
-			const formattedValue = value instanceof Date ? value.toLocaleString() : String(value);
+			const formattedValue =
+				value instanceof Date ? dayjs(value).format(dateTemplate) : String(value);
 			if (typeof color === 'function') {
 				const colorName = color(cleanLogVariables);
 				const paint = Colors[colorName];
@@ -125,6 +129,7 @@ const getStrLogs = (
 export const getLoggerHook =
 	({
 		template,
+		dateTemplate,
 		fileOptions,
 		colorOptions = {
 			url: 'default',
@@ -145,6 +150,7 @@ export const getLoggerHook =
 		const cleanLogVariables = getCleanLogVariables(logVariables);
 		const { coloredLog, rawLog } = getStrLogs(template, {
 			logVariables,
+			dateTemplate,
 			cleanLogVariables,
 			colorOptions
 		});
@@ -155,7 +161,7 @@ export const getLoggerHook =
 
 const logToFile = (line: string, fileOptions: LoggerHookOptions['fileOptions']): void => {
 	if (!fileOptions) return;
-	const [fileName] = new Date().toISOString().split('T');
+	const fileName = dayjs().format('YYYY-MM-DD');
 	const { basePath } = fileOptions;
 	const path = `${basePath}/${fileName}.log`;
 	fs.appendFileSync(path, line + '\n');
@@ -166,7 +172,7 @@ export const appendToLog = (
 	fileOptions: LoggerHookOptions['fileOptions']
 ): void => {
 	if (!fileOptions) return;
-	const [fileName] = new Date().toISOString().split('T');
+	const fileName = dayjs().format('YYYY-MM-DD');
 	const { basePath } = fileOptions;
 	const path = `${basePath}/${fileName}.log`;
 	fs.appendFileSync(path, content + '\n');

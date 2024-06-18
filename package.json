@@ -13,6 +13,7 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},
+	"license": "MIT",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -51,5 +52,8 @@
 	},
 	"svelte": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"dayjs": "^1.11.11"
+	}
 }
