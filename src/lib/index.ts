@@ -61,7 +61,7 @@ type LoggerHookOptions = {
 	dateTemplate?: string;
 	fileOptions?: {
 		basePath: string;
-		fileName: string | (() => string);
+		fileName?: string | (() => string);
 	};
 	colorOptions?: ColorOptions;
 	decodeSearchParams?: boolean;
@@ -163,7 +163,8 @@ export const getLoggerHook =
 const logToFile = (content: string, fileOptions: LoggerHookOptions['fileOptions']): void => {
 	if (!fileOptions) return;
 	const { basePath, fileName } = fileOptions;
-	const file = typeof fileName === 'string' ? fileName : fileName();
+	let file = dayjs().format('YYYY-MM-DD');
+	if (fileName !== undefined) file = typeof fileName === 'string' ? fileName : fileName();
 	const path = `${basePath}/${file}.log`;
 	fs.appendFileSync(path, content + '\n');
 };
