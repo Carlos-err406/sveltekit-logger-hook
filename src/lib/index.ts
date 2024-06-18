@@ -61,6 +61,7 @@ type LoggerHookOptions = {
 	dateTemplate?: string;
 	fileOptions?: {
 		basePath: string;
+		fileName: string | (() => string);
 	};
 	colorOptions?: ColorOptions;
 	decodeSearchParams?: boolean;
@@ -159,22 +160,11 @@ export const getLoggerHook =
 		return response;
 	};
 
-const logToFile = (line: string, fileOptions: LoggerHookOptions['fileOptions']): void => {
+const logToFile = (content: string, fileOptions: LoggerHookOptions['fileOptions']): void => {
 	if (!fileOptions) return;
-	const fileName = dayjs().format('YYYY-MM-DD');
-	const { basePath } = fileOptions;
-	const path = `${basePath}/${fileName}.log`;
-	fs.appendFileSync(path, line + '\n');
-};
-
-export const appendToLog = (
-	content: string,
-	fileOptions: LoggerHookOptions['fileOptions']
-): void => {
-	if (!fileOptions) return;
-	const fileName = dayjs().format('YYYY-MM-DD');
-	const { basePath } = fileOptions;
-	const path = `${basePath}/${fileName}.log`;
+	const { basePath, fileName } = fileOptions;
+	const file = typeof fileName === 'string' ? fileName : fileName();
+	const path = `${basePath}/${file}.log`;
 	fs.appendFileSync(path, content + '\n');
 };
 
@@ -185,12 +175,12 @@ export const log = <T extends object = object>(
 	if (typeof content === 'string') {
 		logToConsole(content);
 		if (fileOptions) {
-			appendToLog(content, fileOptions);
+			logToFile(content, fileOptions);
 		}
 	} else {
 		logToConsole(JSON.stringify(content, null, 2));
 		if (fileOptions) {
-			appendToLog(JSON.stringify(content, null, 2), fileOptions);
+			logToFile(JSON.stringify(content, null, 2), fileOptions);
 		}
 	}
 };
