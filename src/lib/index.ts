@@ -12,8 +12,6 @@ const colorRedBold = (text: string) => `\x1b[1m\x1b[31m${text}\x1b[0m`;
 const colorGreenBold = (text: string) => `\x1b[1m\x1b[32m${text}\x1b[0m`;
 const colorYellowBold = (text: string) => `\x1b[1m\x1b[33m${text}\x1b[0m`;
 
-const logToConsole = (...text: string[]) => process.stdout.write(text.join(' ') + '\n');
-
 export const Colors = {
 	default: colorDefault,
 	red: colorRed,
@@ -160,12 +158,15 @@ export const getLoggerHook =
 		return response;
 	};
 
+const logToConsole = (...text: string[]) => process.stdout.write(text.join(' ') + '\n');
+
 const logToFile = (content: string, fileOptions: LoggerHookOptions['fileOptions']): void => {
 	if (!fileOptions) return;
 	const { basePath, fileName } = fileOptions;
 	let file = dayjs().format('YYYY-MM-DD');
 	if (fileName !== undefined) file = typeof fileName === 'string' ? fileName : fileName();
 	const path = `${basePath}/${file}.log`;
+	fs.mkdirSync(basePath, { recursive: true });
 	fs.appendFileSync(path, content + '\n');
 };
 
