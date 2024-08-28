@@ -63,16 +63,19 @@ type LoggerHookOptions = {
 	};
 	colorOptions?: ColorOptions;
 	decodeSearchParams?: boolean;
+	decodePathname?: boolean;
 };
 const getLogVariables = ({
 	method,
 	status,
 	pathname,
 	search,
-	decodeSearchParams
+	decodeSearchParams,
+	decodePathname
 }: {
 	method: string;
 	decodeSearchParams: boolean;
+	decodePathname: boolean;
 	status: number;
 	pathname: string;
 	search: string;
@@ -81,7 +84,7 @@ const getLogVariables = ({
 	'{method}': method,
 	'{status}': status,
 	'{urlSearchParams}': decodeSearchParams ? decodeURIComponent(search) : search,
-	'{url}': pathname
+	'{url}': decodePathname ? decodeURIComponent(pathname) : pathname
 });
 const getCleanLogVariables = (logVariables: LogVariables): CleanLogVariables => ({
 	date: logVariables['{date}'],
@@ -137,7 +140,8 @@ export const getLoggerHook =
 			status: 'default',
 			urlSearchParams: 'default'
 		},
-		decodeSearchParams = false
+		decodeSearchParams = false,
+		decodePathname = false
 	}: LoggerHookOptions): Handle =>
 	async ({ event, resolve }) => {
 		const { url, request } = event;
@@ -145,7 +149,14 @@ export const getLoggerHook =
 		const { status } = response;
 		const { method } = request;
 		const { pathname, search } = url;
-		const logVariables = getLogVariables({ method, status, pathname, search, decodeSearchParams });
+		const logVariables = getLogVariables({
+			method,
+			status,
+			pathname,
+			search,
+			decodeSearchParams,
+			decodePathname
+		});
 		const cleanLogVariables = getCleanLogVariables(logVariables);
 		const { coloredLog, rawLog } = getStrLogs(template, {
 			logVariables,
